@@ -1,30 +1,44 @@
-const express = require('express')
+const express = require("express");
 
 const app = express();
 
- 
-app.use("/user", (req,res) => {
-    res.send("Hahahahahhaha")
-})
-app.get("/user", (req,res) => {
-    res.send({firstname:"Prajakta", lastname:"Naik Mule"})
-})
+app.get(
+  "/user",
+  (req, res,next) => {
+    
+    console.log("response 1 executed")
+    // res.send("response!");
+    next();
+  },
+  (req, res,next) => {
+    console.log("response 2 executed")
+    // res.send("response 2");
+    next()
+  }, 
+  (req, res,next) => {
+    console.log("response 3 executed")
+    // res.send("response 3");
+    next()
+  },
+  (req, res,next) => {
+    console.log("response 4 executed")
+    // res.send("response 4");
+    next()
+  },
+  (req, res, next) => {
+    console.log("response 5 executed")
+    // res.send("response 5");
+    next()
+  },
+);
 
-app.post("/user", (req,res)=> {
-    res.send("Registered user successfully!")
-})
-app.delete("/user", (req,res) => {
-    res.send("Deleted user successfully!")
-})
+app.use("/test", (req, res) => {
+  res.send("hello from test");
+});
 
-
-app.use("/test",(req,res) =>{
-    res.send("hello from test")
-})
-
-app.use("/",(req,res) =>{          //kind of wild card route
-    res.send("hello from server")
-})
+// app.use("/",(req,res) =>{          //kind of wild card route
+//     res.send("hello from server")
+// })
 app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-})
+  console.log("Server is running on port 3000");
+});
