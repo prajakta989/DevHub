@@ -1,44 +1,26 @@
 const express = require("express");
+const {adminAuth, userAuth} = require("./middlewares/auth")
 
 const app = express();
+app.use("/admin", adminAuth)
 
-app.get(
-  "/user",
-  (req, res,next) => {
-    
-    console.log("response 1 executed")
-    // res.send("response!");
-    next();
-  },
-  (req, res,next) => {
-    console.log("response 2 executed")
-    // res.send("response 2");
-    next()
-  }, 
-  (req, res,next) => {
-    console.log("response 3 executed")
-    // res.send("response 3");
-    next()
-  },
-  (req, res,next) => {
-    console.log("response 4 executed")
-    // res.send("response 4");
-    next()
-  },
-  (req, res, next) => {
-    console.log("response 5 executed")
-    // res.send("response 5");
-    next()
-  },
-);
+app.post("/user/login", (req,res) =>{
+  res.send("user loged in successfully!")
+})
 
-app.use("/test", (req, res) => {
-  res.send("hello from test");
-});
+app.get("/user", userAuth,(req,res) => {
+  res.send("/user handled")
+})
 
-// app.use("/",(req,res) =>{          //kind of wild card route
-//     res.send("hello from server")
-// })
+app.get("/admin/getAllData", (req,res) => {
+  res.send("All data sent")
+})
+
+app.get("/admin/deleteUser", (req,res) => {
+  res.send("Deleted User")
+})
+
+
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
