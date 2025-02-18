@@ -1,26 +1,18 @@
 const express = require("express");
+const connectDB = require("./config/database")
 const {adminAuth, userAuth} = require("./middlewares/auth")
 
 const app = express();
 app.use("/admin", adminAuth)
 
-app.post("/user/login", (req,res) =>{
-  res.send("user loged in successfully!")
+
+connectDB().then(() => {
+  console.log("database connection successfully established...");
+  app.listen(3000, () => {
+    console.log("Server is running on port 3000");
+  });
+  
+}).catch((err) => {
+  console.log("database connection disrupted");
 })
 
-app.get("/user", userAuth,(req,res) => {
-  res.send("/user handled")
-})
-
-app.get("/admin/getAllData", (req,res) => {
-  res.send("All data sent")
-})
-
-app.get("/admin/deleteUser", (req,res) => {
-  res.send("Deleted User")
-})
-
-
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
