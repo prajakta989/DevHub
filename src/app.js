@@ -20,6 +20,43 @@ app.post('/signup', async(req,res) =>{
   }
 })
 
+//api to get a user
+app.get("/user", async(req, res) =>{
+  const user = req.body.emailId;
+  
+  try{
+    const response = await User.findOne({emailId:user})
+    if(!response){
+      res.status(404).send("User not found")
+    }
+    else{
+      res.send(response)
+    }
+  }
+  catch(err){
+    res.status(404).send("Something went wrong")
+  }
+})
+
+
+//api to get all the user users "/feed"
+
+app.get("/feed", async(req,res) =>{
+  try{
+    const users = await User.find({})
+    if(!users){
+      res.status("404").send("No users found")
+    }
+    else{
+      res.send(users)
+    }
+  }
+  catch(err){
+    res.status(404).send("Something went wrong")
+  }
+})
+
+
 
 connectDB().then(() => {
   console.log("database connection successfully established...");
