@@ -57,6 +57,40 @@ app.get("/feed", async(req,res) =>{
 })
 
 
+//get user by id
+app.get("/userId", async(req,res) => {
+  const userId = req.body._id
+  try{
+    const response = await User.findById({_id:userId})
+    if(!response){
+      res.status(404).send("No user found for this Id")
+    }
+    else{
+      res.send(response)
+    }
+  }
+  catch(err){
+    res.status(404).send("Something went wrong")
+  }
+})
+
+
+//delete user API
+
+app.delete("/userId", async(req,res) =>{
+  const user = req.body.userId
+  try{
+    const response = await User.findByIdAndDelete(user)
+    // const response = await User.findByIdAndDelete({_id:user}) //same as above one
+    console.log(response);
+    
+    res.send("user Deleted successfully")
+  }
+  catch(err){
+    res.status(404).send("Something went wrong")
+  }
+})
+
 
 connectDB().then(() => {
   console.log("database connection successfully established...");
