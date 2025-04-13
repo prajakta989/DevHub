@@ -2,13 +2,16 @@ const mongoose = require('mongoose');
 const {Schema} = mongoose
 
 const userSchema = new Schema({
-    firtsName: {
+    firstName: {
         type: String
     },
     lastName:{
         type:String
     },
     emailId:{
+        type:String
+    },
+    password:{
         type:String
     },
     age:{
