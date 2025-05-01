@@ -92,6 +92,26 @@ app.delete("/userId", async(req,res) =>{
 })
 
 
+// update user API
+app.patch("/user", async(req,res) =>{
+  const userId = req.body.userId;
+  const data = req.body
+  try{
+    const allowed_updates = ["skills", "about", "photoUrl", "gender", "age"]
+
+    const isUpdateAllowed = Object.keys(data).every(k => allowed_updates.includes(k));
+    if(!isUpdateAllowed){
+      throw new Error("Updates not allowed")
+    }
+    const response = await User.findByIdAndUpdate(userId, data, {runValidators: true})
+    res.send("User data updated successfully")
+  }
+  catch(err){
+    res.status(404).send("Something went wrong: " + err.message)
+  }
+})
+
+
 connectDB().then(() => {
   console.log("database connection successfully established...");
   app.listen(3000, () => {
