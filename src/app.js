@@ -1,29 +1,31 @@
 const express = require("express");
 const connectDB = require("./config/database");
-const { adminAuth, userAuth } = require("./middlewares/auth");
 const User = require("./models/User");
 const { validateSignupData } = require("./utils/validations");
-const bcrypt = require('bcryptjs')
+const bcrypt = require("bcryptjs");
 const validator = require("validator");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const {userAuth} = require("./middlewares/auth")
 
 const app = express();
-app.use("/admin", adminAuth);
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
     //validate req.body data
     validateSignupData(req);
 
-    const {firstName, lastName, emailId, password} = req.body
+    const { firstName, lastName, emailId, password } = req.body;
     //hash password
-    const passwordHash = await bcrypt.hash(password, 10)
+    const passwordHash = await bcrypt.hash(password, 10);
     //creates new instance of user model
     const user = new User({
       firstName,
       lastName,
       emailId,
-      password: passwordHash
+      password: passwordHash,
     });
     //put it in try catch block whenever interacting with database
     await user.save();
@@ -33,35 +35,44 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post("/login", async(req,res) =>{
-  const{emailId, password} = req.body
-  try{
-    if(!emailId){
-      throw new Error("Email is required")
+app.post("/login", async (req, res) => {
+  const { emailId, password } = req.body;
+  try {
+    if (!emailId) {
+      throw new Error("Email is required");
     }
 
-    if(!validator.isEmail(emailId)){
-      throw new Error("Invalid Email Id")
+    if (!validator.isEmail(emailId)) {
+      throw new Error("Invalid Email Id");
     }
-    const user = await User.findOne({emailId: emailId})
+    const user = await User.findOne({ emailId: emailId });
 
-    if(!user){
-      throw new Error("Invalid Credentials")
+    if (!user) {
+      throw new Error("Invalid Credentials");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password)
-    if(isPasswordValid){
-      res.send("User Logged in Successfully!!")
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (isPasswordValid) {
+      const token = jwt.sign({ _id: user._id }, "dev@hub0512");
+      const cookie = res.cookie("token", token);
+      res.send("User Logged in Successfully!!");
+    } else {
+      throw new Error("Invalid Credentials");
     }
-    else{
-      throw new Error("Invalid Credentials")
-    }
-  }
-  catch(err){
+  } catch (err) {
     res.status(404).send("ERROR: " + err.message);
   }
-})
+});
 
+app.get("/profile", userAuth, async (req, res) => {
+  const { token } = req.cookies;
+  try {
+    const {user} = req
+    res.send(user);
+  } catch (err) {
+    res.status(404).send("ERROR: " + err.message);
+  }
+});
 //api to get a user
 app.get("/user", async (req, res) => {
   const user = req.body.emailId;
