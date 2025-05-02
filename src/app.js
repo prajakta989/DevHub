@@ -4,6 +4,7 @@ const { adminAuth, userAuth } = require("./middlewares/auth");
 const User = require("./models/User");
 const { validateSignupData } = require("./utils/validations");
 const bcrypt = require('bcryptjs')
+const validator = require("validator");
 
 const app = express();
 app.use("/admin", adminAuth);
@@ -31,6 +32,35 @@ app.post("/signup", async (req, res) => {
     res.status(404).send("ERROR: " + err.message);
   }
 });
+
+app.post("/login", async(req,res) =>{
+  const{emailId, password} = req.body
+  try{
+    if(!emailId){
+      throw new Error("Email is required")
+    }
+
+    if(!validator.isEmail(emailId)){
+      throw new Error("Invalid Email Id")
+    }
+    const user = await User.findOne({emailId: emailId})
+
+    if(!user){
+      throw new Error("Invalid Credentials")
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password)
+    if(isPasswordValid){
+      res.send("User Logged in Successfully!!")
+    }
+    else{
+      throw new Error("Invalid Credentials")
+    }
+  }
+  catch(err){
+    res.status(404).send("ERROR: " + err.message);
+  }
+})
 
 //api to get a user
 app.get("/user", async (req, res) => {
