@@ -54,7 +54,9 @@ app.post("/login", async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
       const token = jwt.sign({ _id: user._id }, "dev@hub0512", {expiresIn: "7d"});
-      const cookie = res.cookie("token", token);
+      const cookie = res.cookie("token", token, {
+        expires: new Date(Date.now() + 8 * 3600000) // cookie will be removed after 8 hours
+      });
       res.send("User Logged in Successfully!!");
     } else {
       throw new Error("Invalid Credentials");
