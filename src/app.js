@@ -6,7 +6,7 @@ const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
-const {userAuth} = require("./middlewares/auth")
+const { userAuth } = require("./middlewares/auth");
 
 const app = express();
 app.use(express.json());
@@ -51,11 +51,13 @@ app.post("/login", async (req, res) => {
       throw new Error("Invalid Credentials");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    //validatePassword is a user specifis method that is why it is written under userSchema in User.js file
+    const isPasswordValid = await user.validatePassword(password);
     if (isPasswordValid) {
-      const token = jwt.sign({ _id: user._id }, "dev@hub0512", {expiresIn: "7d"});
+      //getJWT is a user specifis method thta is why it is written under userSchema in User.js file
+      const token = await user.getJWT();
       const cookie = res.cookie("token", token, {
-        expires: new Date(Date.now() + 8 * 3600000) // cookie will be removed after 8 hours
+        expires: new Date(Date.now() + 8 * 3600000), // cookie will be removed after 8 hours
       });
       res.send("User Logged in Successfully!!");
     } else {
@@ -69,18 +71,17 @@ app.post("/login", async (req, res) => {
 app.get("/profile", userAuth, async (req, res) => {
   const { token } = req.cookies;
   try {
-    const {user} = req
+    const { user } = req;
     res.send(user);
   } catch (err) {
     res.status(404).send("ERROR: " + err.message);
   }
 });
 
-
-app.post("/sendConnectionRequest", userAuth , async(req,res) =>{
-  const {user}  =req
-  res.send(`Connection req sent by ${user.firstName}`)
-})
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
+  const { user } = req;
+  res.send(`Connection req sent by ${user.firstName}`);
+});
 connectDB()
   .then(() => {
     console.log("database connection successfully established...");
