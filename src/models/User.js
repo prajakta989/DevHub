@@ -43,12 +43,12 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: true,
-      validate: {
-        validator: function(value){
-          return /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value);
-        },
-        message: "Password must be at least 8 characters long and include uppercase, number, and special character."
-      }
+      // validate: {
+      //   validator: function(value){
+      //     return /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value);
+      //   },
+      //   message: "Password must be at least 8 characters long and include uppercase, number, and special character."
+      // }
     },
     age: {
       type: Number,

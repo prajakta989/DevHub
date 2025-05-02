@@ -3,6 +3,7 @@ const connectDB = require("./config/database");
 const { adminAuth, userAuth } = require("./middlewares/auth");
 const User = require("./models/User");
 const { validateSignupData } = require("./utils/validations");
+const bcrypt = require('bcryptjs')
 
 const app = express();
 app.use("/admin", adminAuth);
@@ -13,9 +14,16 @@ app.post("/signup", async (req, res) => {
     //validate req.body data
     validateSignupData(req);
 
+    const {firstName, lastName, emailId, password} = req.body
     //hash password
+    const passwordHash = await bcrypt.hash(password, 10)
     //creates new instance of user model
-    const user = new User(req.body);
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash
+    });
     //put it in try catch block whenever interacting with database
     await user.save();
     res.send("user created successfully");
