@@ -53,7 +53,7 @@ app.post("/login", async (req, res) => {
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
-      const token = jwt.sign({ _id: user._id }, "dev@hub0512");
+      const token = jwt.sign({ _id: user._id }, "dev@hub0512", {expiresIn: "7d"});
       const cookie = res.cookie("token", token);
       res.send("User Logged in Successfully!!");
     } else {
@@ -73,93 +73,12 @@ app.get("/profile", userAuth, async (req, res) => {
     res.status(404).send("ERROR: " + err.message);
   }
 });
-//api to get a user
-app.get("/user", async (req, res) => {
-  const user = req.body.emailId;
 
-  try {
-    const response = await User.findOne({ emailId: user });
-    if (!response) {
-      res.status(404).send("User not found");
-    } else {
-      res.send(response);
-    }
-  } catch (err) {
-    res.status(404).send("Something went wrong");
-  }
-});
 
-//api to get all the user users "/feed"
-
-app.get("/feed", async (req, res) => {
-  try {
-    const users = await User.find({});
-    if (!users) {
-      res.status("404").send("No users found");
-    } else {
-      res.send(users);
-    }
-  } catch (err) {
-    res.status(404).send("Something went wrong");
-  }
-});
-
-//get user by id
-app.get("/userId", async (req, res) => {
-  const userId = req.body._id;
-  try {
-    const response = await User.findById({ _id: userId });
-    if (!response) {
-      res.status(404).send("No user found for this Id");
-    } else {
-      res.send(response);
-    }
-  } catch (err) {
-    res.status(404).send("Something went wrong");
-  }
-});
-
-//delete user API
-
-app.delete("/userId", async (req, res) => {
-  const user = req.body.userId;
-  try {
-    const response = await User.findByIdAndDelete(user);
-    // const response = await User.findByIdAndDelete({_id:user}) //same as above one
-    console.log(response);
-
-    res.send("user Deleted successfully");
-  } catch (err) {
-    res.status(404).send("Something went wrong");
-  }
-});
-
-// update user API
-app.patch("/user/:userid", async (req, res) => {
-  const userId = req.params?.userid;
-  const data = req.body;
-  try {
-    const allowed_updates = ["skills", "about", "photoUrl", "gender", "age"];
-
-    const isUpdateAllowed = Object.keys(data).every((k) =>
-      allowed_updates.includes(k)
-    );
-    if (!isUpdateAllowed) {
-      throw new Error("Updates not allowed");
-    }
-
-    if (data.skills?.length > 10)
-      throw new Error("Skills cannot be more than 10");
-
-    const response = await User.findByIdAndUpdate(userId, data, {
-      runValidators: true,
-    });
-    res.send("User data updated successfully");
-  } catch (err) {
-    res.status(404).send("Something went wrong: " + err.message);
-  }
-});
-
+app.post("/sendConnectionRequest", userAuth , async(req,res) =>{
+  const {user}  =req
+  res.send(`Connection req sent by ${user.firstName}`)
+})
 connectDB()
   .then(() => {
     console.log("database connection successfully established...");
