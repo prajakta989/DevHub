@@ -23,21 +23,21 @@ const userSchema = new Schema(
       type: String,
       required: true,
       unique: true,
-      validate: [
-        {
-          validator: async function (value) {
-            const count = await mongoose.models.User.countDocuments({
-              emailId: value,
-            });
-            return count === 0;
-          },
-          message: (props) => `${props.value} already exists!`,
-        },
-        {
-          validator: validator.isEmail,
-          message: 'Invalid email format',
-        },
-      ],
+      // validate: [
+      //   {
+      //     validator: async function (value) {
+      //       const count = await mongoose.models.User.countDocuments({
+      //         emailId: value,
+      //       });
+      //       return count === 0;
+      //     },
+      //     message: (props) => `${props.value} already exists!`,
+      //   },
+      //   {
+      //     validator: validator.isEmail,
+      //     message: 'Invalid email format',
+      //   },
+      // ],
       index: true,
       lowercase: true,
       trim: true,
