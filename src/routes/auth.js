@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const validator = require("validator");
 const { validateSignupData } = require("../utils/validations");
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const authRouter = express.Router();
 
@@ -62,9 +64,86 @@ authRouter.post("/login", async (req, res) => {
   }
 });
 
-authRouter.post("/logout", (req,res) => {
-    res.cookie("token",null, {expires: new Date(Date.now())})
-    res.send("Logout Successfully!!")
-})
+authRouter.post("/logout", (req, res) => {
+  res.cookie("token", null, { expires: new Date(Date.now()) });
+  res.send("Logout Successfully!!");
+});
 
+authRouter.post("/forgot-password", async (req, res) => {
+  try {
+    const { emailId } = req.body;
+    if (!validator.isEmail(emailId)) {
+      throw new Error("Invalid Email Id");
+    }
+
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("User does not exixts");
+    }
+
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex");
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
+
+    // You'd send this URL via email in a real app
+    const resetLink = `https://yourfrontend.com/reset-password?token=${rawToken}`;
+
+    console.log("Reset link:", resetLink); // for now
+    res.status(200).send("Password reset link sent to your email");
+  } catch (err) {
+    res.status(400).send("Something went wrong:" + err.message);
+  }
+});
+
+authRouter.post("/reset-password", async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    console.log(token, newPassword);
+    
+    if (!token || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Token and new password are required" });
+    }
+
+    //  Validate password complexity
+    const isValidPassword = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(
+      newPassword
+    );
+    if (!isValidPassword) {
+      return res.status(400).json({
+        message:
+          "Password must contain at least 8 characters, one uppercase letter, one number, and one special character.",
+      });
+    }
+    // Hash the token to compare with stored one
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    // Find user with matching token and check if not expired
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Token is invalid or has expired" });
+    }
+
+    // Set new password (it will be hashed in the pre-save hook)
+    const newHashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = newHashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (err) {
+    res.status(500).json({ message: "Something went wrong", error: err.message });
+  }
+});
 module.exports = authRouter;
