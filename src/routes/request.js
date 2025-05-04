@@ -47,7 +47,8 @@ requestRouter.post("/request/send/:status/:userId", userAuth, async (req, res) =
 
     const data = await request.save()
     res.json({
-      message: "Connection request sent successfully !!",
+      message: `${status === 'interested'? "Connection request sent":"Connection request ignored"
+      }`,
       data
     })
   }
