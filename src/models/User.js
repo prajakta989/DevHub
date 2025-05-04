@@ -59,13 +59,17 @@ const userSchema = new Schema(
     },
     gender: {
       type: String,
-      validate: {
-        validator: async function (value) {
-          if (!["Male", "Female", "Others"].includes(value)) {
-            throw new Error("Gender is not valid");
-          }
-        },
-      },
+      enum:{
+        values: ['male','female','others'],
+        message: `{VALUE} is incorrect gender type`
+      }
+      // validate: {
+      //   validator: async function (value) {
+      //     if (!["Male", "Female", "Others"].includes(value)) {
+      //       throw new Error("Gender is not valid");
+      //     }
+      //   },
+      // },
     },
     photoUrl: {
       type: String,
