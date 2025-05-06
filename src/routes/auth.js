@@ -13,7 +13,7 @@ authRouter.post("/signup", async (req, res) => {
     //validate req.body data
     validateSignupData(req);
 
-    const { firstName, lastName, emailId, password } = req.body;
+    const { firstName, lastName, emailId, password,age, gender } = req.body;
     //hash password
     const passwordHash = await bcrypt.hash(password, 10);
     //creates new instance of user model
@@ -22,6 +22,9 @@ authRouter.post("/signup", async (req, res) => {
       lastName,
       emailId,
       password: passwordHash,
+      age,
+      gender,
+      photoUrl
     });
     //put it in try catch block whenever interacting with database
     await user.save();
@@ -41,8 +44,9 @@ authRouter.post("/login", async (req, res) => {
     if (!validator.isEmail(emailId)) {
       throw new Error("Invalid Email Id");
     }
-    const user = await User.findOne({ emailId: emailId });
+    const user = await User.findOne({emailId })
 
+   
     if (!user) {
       throw new Error("Invalid Credentials");
     }
@@ -55,7 +59,7 @@ authRouter.post("/login", async (req, res) => {
       const cookie = res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000), // cookie will be removed after 8 hours
       });
-      res.send("User Logged in Successfully!!");
+      res.send(user);
     } else {
       throw new Error("Invalid Credentials");
     }
