@@ -12,7 +12,8 @@ authRouter.post("/signup", async (req, res) => {
   try {
     //validate req.body data
     validateSignupData(req);
-      const { firstName, lastName, emailId, password,age, gender, photoUrl } = req.body;
+    const { firstName, lastName, emailId, password, age, gender, photoUrl } =
+      req.body;
     //hash password
     const passwordHash = await bcrypt.hash(password, 10);
     //creates new instance of user model
@@ -23,11 +24,15 @@ authRouter.post("/signup", async (req, res) => {
       password: passwordHash,
       age,
       gender,
-      photoUrl
+      photoUrl,
     });
     //put it in try catch block whenever interacting with database
-    await user.save();
-    res.send("user created successfully");
+    const userdata = await user.save();
+    const token = await user.getJWT();
+    const cookie = res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000), // cookie will be removed after 8 hours
+    });
+    res.json({ message: "user created successfully", data: userdata });
   } catch (err) {
     res.status(404).send("ERROR: " + err.message);
   }
@@ -43,9 +48,8 @@ authRouter.post("/login", async (req, res) => {
     if (!validator.isEmail(emailId)) {
       throw new Error("Invalid Email Id");
     }
-    const user = await User.findOne({emailId })
+    const user = await User.findOne({ emailId });
 
-   
     if (!user) {
       throw new Error("Invalid Credentials");
     }
@@ -107,7 +111,7 @@ authRouter.post("/reset-password", async (req, res) => {
   try {
     const { token, newPassword } = req.body;
     console.log(token, newPassword);
-    
+
     if (!token || !newPassword) {
       return res
         .status(400)
@@ -133,7 +137,9 @@ authRouter.post("/reset-password", async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: "Token is invalid or has expired" });
+      return res
+        .status(400)
+        .json({ message: "Token is invalid or has expired" });
     }
 
     // Set new password (it will be hashed in the pre-save hook)
@@ -146,7 +152,9 @@ authRouter.post("/reset-password", async (req, res) => {
 
     res.status(200).json({ message: "Password reset successful" });
   } catch (err) {
-    res.status(500).json({ message: "Something went wrong", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Something went wrong", error: err.message });
   }
 });
 module.exports = authRouter;
