@@ -2,6 +2,7 @@ const express = require("express");
 const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/User");
+const sendEmail = require("../utils/sendEmail")
 
 const requestRouter = express.Router();
 
@@ -46,6 +47,9 @@ requestRouter.post("/request/send/:status/:userId", userAuth, async (req, res) =
     })
 
     const data = await request.save()
+    const sendMail = await sendEmail.run();
+    console.log(sendMail);
+    
     res.json({
       message: `${status === 'interested'? "Connection request sent":"Connection request ignored"
       }`,
