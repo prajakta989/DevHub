@@ -46,8 +46,8 @@ requestRouter.post("/request/send/:status/:userId", userAuth, async (req, res) =
       status
     })
 
-    const data = await request.save()
-    const sendMail = await sendEmail.run();
+    // const data = await request.save()
+    // const sendMail = await sendEmail.run();
     console.log(sendMail);
     
     res.json({
