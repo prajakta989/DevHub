@@ -48,7 +48,7 @@ requestRouter.post("/request/send/:status/:userId", userAuth, async (req, res) =
 
     // const data = await request.save()
     // const sendMail = await sendEmail.run();
-    console.log(sendMail);
+    // console.log(sendMail);
     
     res.json({
       message: `${status === 'interested'? "Connection request sent":"Connection request ignored"
