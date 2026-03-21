@@ -7,7 +7,7 @@ pipeline{
     stages{
         stage('checkout code'){
             steps{
-                git "https://github.com/prajakta989/DevHub.git"
+                git branch:'main', url: "https://github.com/prajakta989/DevHub.git"
             }
         }
         stage('install dependancies'){
