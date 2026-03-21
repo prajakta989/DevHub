@@ -16,7 +16,7 @@ pipeline{
             }
         }
 
-        stage('Build'){
+        stage('Build step'){
             steps{
                 sh 'npm run build || echo "No build step"'
             }
