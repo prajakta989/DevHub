@@ -5,7 +5,7 @@ pipeline{
     }
 
     stages{
-        stage('checkout'){
+        stage('checkout code'){
             steps{
                 git "https://github.com/prajakta989/DevHub.git"
             }
