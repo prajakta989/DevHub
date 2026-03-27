@@ -24,7 +24,13 @@ pipeline{
 
         stage('Testing'){
             steps{
-                sh 'npm test || "No Tests Found"'
+                sh '''
+                  if npm start | grep -q test; then 
+                  npm test
+                  else
+                   echo "No tests found skipping..."
+                  fi
+                '''
             }
         }
 
