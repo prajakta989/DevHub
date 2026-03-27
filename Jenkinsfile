@@ -37,9 +37,13 @@ pipeline{
         stage('SonarQube Analysis'){
             steps{
                 withSonarQubeEnv('sonarserver'){
-                sh 'npx sonar-scanner'
+                sh '''
+                    npx sonar-scanner \
+                    -Dsonar.projectKey=devshub-backend \
+                    -Dsonar.sources=. \
+                '''
                 }
-            }
+            }s
         }
     }
 }
