@@ -21,5 +21,19 @@ pipeline{
                 sh 'npm run build || echo "No build step"'
             }
         }
+
+        stage('Testing'){
+            steps{
+                sh 'npm test || "No Tests Found"'
+            }
+        }
+
+        stage('SonarQube Analysis'){
+            steps{
+                withSonarQubeEnv('sonarqube'){
+                sh 'npx sonar-scanner'
+                }
+            }
+        }
     }
 }
